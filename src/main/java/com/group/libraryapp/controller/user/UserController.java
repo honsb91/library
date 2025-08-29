@@ -1,16 +1,11 @@
 package com.group.libraryapp.controller.user;
 
-import com.group.libraryapp.domain.user.User;
 import com.group.libraryapp.dto.user.request.UserCreateRequest;
 import com.group.libraryapp.dto.user.request.UserUpdateRequest;
 import com.group.libraryapp.dto.user.response.UserResponse;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -45,6 +40,13 @@ public class UserController {
     //회원수정
     @PutMapping("/user")
     public void updateUser(@RequestBody UserUpdateRequest request){
+        // id를 기준으로 유저가 존재하는지 확인
+        String readSql = "SELECT * FROM user WHERE id = ? ";
+        boolean isUserNotExits = jdbcTemplate.query(readSql, (rs, rowNum) -> 0, request.getId()).isEmpty();
+        if(isUserNotExits){
+            throw new IllegalArgumentException();
+        }
+
         String sql = "UPDATE user SET name = ? WHERE id = ? ";
         jdbcTemplate.update(sql, request.getName(), request.getId());
     }
@@ -52,7 +54,14 @@ public class UserController {
     //회원삭제
     @DeleteMapping("/user")
     public void deleteUser(@RequestParam String name){
+        String readSql = "SELECT * FROM user WHERE name = ? ";
+        boolean isUserNotExits = jdbcTemplate.query(readSql, (rs, rowNum) -> 0, name).isEmpty();
+        if(isUserNotExits){
+            throw new IllegalArgumentException();
+        }
+
         String sql = "DELETE FROM user WHERE name = ? ";
         jdbcTemplate.update(sql,name);
     }
+
 }
