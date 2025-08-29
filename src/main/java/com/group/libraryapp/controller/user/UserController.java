@@ -3,6 +3,7 @@ package com.group.libraryapp.controller.user;
 import com.group.libraryapp.dto.user.request.UserCreateRequest;
 import com.group.libraryapp.dto.user.request.UserUpdateRequest;
 import com.group.libraryapp.dto.user.response.UserResponse;
+import com.group.libraryapp.service.user.UserService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,6 +11,8 @@ import java.util.List;
 
 @RestController
 public class UserController {
+
+    private final UserService userService = new UserService();
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -40,15 +43,7 @@ public class UserController {
     //회원수정
     @PutMapping("/user")
     public void updateUser(@RequestBody UserUpdateRequest request){
-        // id를 기준으로 유저가 존재하는지 확인
-        String readSql = "SELECT * FROM user WHERE id = ? ";
-        boolean isUserNotExits = jdbcTemplate.query(readSql, (rs, rowNum) -> 0, request.getId()).isEmpty();
-        if(isUserNotExits){
-            throw new IllegalArgumentException();
-        }
-
-        String sql = "UPDATE user SET name = ? WHERE id = ? ";
-        jdbcTemplate.update(sql, request.getName(), request.getId());
+        userService.updateUser(jdbcTemplate, request);
     }
 
     //회원삭제
