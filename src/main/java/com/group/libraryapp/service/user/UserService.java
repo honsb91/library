@@ -1,20 +1,44 @@
 package com.group.libraryapp.service.user;
 
+import com.group.libraryapp.dto.user.request.UserCreateRequest;
 import com.group.libraryapp.dto.user.request.UserUpdateRequest;
+import com.group.libraryapp.dto.user.response.UserResponse;
+import com.group.libraryapp.repository.user.UserRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.util.List;
 
 public class UserService {
 
-    public void updateUser(JdbcTemplate jdbcTemplate, UserUpdateRequest request){
-        // id를 기준으로 유저가 존재하는지 확인
-        String readSql = "SELECT * FROM user WHERE id = ? ";
-        boolean isUserNotExits = jdbcTemplate.query(readSql, (rs, rowNum) -> 0, request.getId()).isEmpty();
-        if(isUserNotExits){
+    private final UserRepository userRepository;
+
+    public UserService(JdbcTemplate jdbcTemplate) {
+        this.userRepository = new UserRepository(jdbcTemplate);
+    }
+
+    //회원가입
+    public void saveUser(UserCreateRequest request){
+        userRepository.saveUser(request.getName(), request.getAge());
+    }
+
+    //회원목록
+    public List<UserResponse> getUsers(){
+       return userRepository.getUsers();
+    }
+
+    //회원수정
+    public void updateUser(UserUpdateRequest request){
+        if(userRepository.isUserNotExist(request.getId())){
             throw new IllegalArgumentException();
         }
+        userRepository.updateUserName(request.getName(), request.getId());
+    }
 
-        String sql = "UPDATE user SET name = ? WHERE id = ? ";
-        jdbcTemplate.update(sql, request.getName(), request.getId());
-
+    //회원삭제
+    public void deleteUser(String name){
+        if(userRepository.isUserNotExist(name)){
+            throw new IllegalArgumentException();
+        }
+        userRepository.deleteUser(name);
     }
 }
