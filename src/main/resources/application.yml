@@ -4,3 +4,12 @@ spring:
     username: "root"
     password: "009914"
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+jpa:
+  hibernate:
+    ddl-auto: none
+  properties:
+    hibernate:
+      show_sql: true
+      format-sql: true
+      dialect: org.hibernate.dialect.MySQL8Dialect
