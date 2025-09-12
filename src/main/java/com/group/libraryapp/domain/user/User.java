@@ -17,7 +17,7 @@ public class User {
     private String name;
     private Integer age;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserLoanHistory> userLoanHistories = new ArrayList<>();
 
     protected User(){
@@ -43,8 +43,19 @@ public class User {
         return age;
     }
 
-
     public void updateName(String name){
         this.name = name;
+    }
+
+    public void loanBook(String bookName){
+        this.userLoanHistories.add(new UserLoanHistory(this,bookName));
+    }
+
+    public void returnBook(String bookName){
+        UserLoanHistory targetHistory = this.userLoanHistories.stream()
+                .filter(history -> history.getBookName().equals(bookName))
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
+        targetHistory.doReturn();
     }
 }
